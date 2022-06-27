@@ -1,5 +1,5 @@
 import { Button, Dropdown, Input, Grid, Progress } from "@nextui-org/react";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useEffect, useReducer } from "react";
 import ESPTool from "web-esptool";
 import { IFlashProgress } from "web-esptool/build/src/esptool/ESPLoader";
@@ -77,17 +77,17 @@ const initialState: State = {
 
 export const PartitionTable: React.FC<{
   withEsptool: (callback: (esptool: ESPTool) => Promise<void>) => Promise<void>;
-}> = React.memo(({ withEsptool }) => {
+}> = React.memo(function PartitionTable({ withEsptool }) {
   const [{ currentPartitions }, dispatch] = useReducer(reducer, initialState);
 
   const [flashProgress, setFlashProgress] = useState<number>();
 
-  const handleReload = async () => {
+  const handleReload = useCallback(async () => {
     await withEsptool(async (esptool) => {
       const partitions = (await loadPartitions(esptool)) ?? [];
       dispatch({ type: "INIT_PARTITIONS", partitions });
     });
-  };
+  }, [dispatch, withEsptool]);
 
   const handleFlash = async () => {
     setFlashProgress(0);
@@ -105,7 +105,7 @@ export const PartitionTable: React.FC<{
 
   useEffect(() => {
     handleReload();
-  }, []);
+  }, [handleReload]);
 
   return (
     <>
