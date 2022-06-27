@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Build and Deploy
+on: [push]
+permissions:
+  contents: write
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npx next build
+      - run: npx next export
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: out
